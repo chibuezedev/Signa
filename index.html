@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Gesture Classifier</title>
+    <style>
+        video, canvas {
+            display: block;
+            margin: 20px auto;
+            border: 1px solid black;
+        }
+        button {
+            display: block;
+            margin: 10px auto;
+        }
+    </style>
+</head>
+<body>
+
+<video id="video" width="640" height="480" autoplay></video>
+<canvas id="canvas" width="640" height="480"></canvas>
+<button id="start">Start Classifying</button>
+<button id="stop">Stop Classifying</button>
+<p id="prediction">Prediction: </p>
+
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    const startButton = document.getElementById('start');
+    const stopButton = document.getElementById('stop');
+    const predictionElement = document.getElementById('prediction');
+
+    let streaming = false;
+
+    // Access webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            video.srcObject = stream;
+            video.play();
+        })
+        .catch(err => {
+            console.error("Error accessing webcam: " + err);
+        });
+
+    // Start Classifying
+    startButton.addEventListener('click', () => {
+        streaming = true;
+        classifyFrame();
+    });
+
+    // Stop Classifying
+    stopButton.addEventListener('click', () => {
+        streaming = false;
+    });
+
+    // Capture frame and send to server
+    function classifyFrame() {
+        if (!streaming) return;
+
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/jpeg'); // Convert canvas to JPEG image
+
+        fetch('http://127.0.0.1:5000/classify', {  // Replace with your API endpoint
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: imageData })
+        })
+        .then(response => response.json())
+        .then(data => {
+            predictionElement.textContent = `Prediction: ${data.prediction} (Confidence: ${data.confidence})`;
+        })
+        .catch(err => console.error('Error:', err));
+
+        // Repeat the process
+        console.log("here")
+        setTimeout(classifyFrame, 500);  // Classify every 500 ms (adjust as necessary)
+    }
+</script>
+
+</body>
+</html>
