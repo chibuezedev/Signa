@@ -60,9 +60,9 @@
         if (!streaming) return;
 
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageData = canvas.toDataURL('image/jpeg'); // Convert canvas to JPEG image
+        const imageData = canvas.toDataURL('image/jpeg');
 
-        fetch('http://127.0.0.1:5000/classify', {  // Replace with your API endpoint
+        fetch('http://127.0.0.1:5000/classify',
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ image: imageData })
@@ -75,7 +75,7 @@
 
         // Repeat the process
         console.log("here")
-        setTimeout(classifyFrame, 500);  // Classify every 500 ms (adjust as necessary)
+        setTimeout(classifyFrame, 500);
     }
 </script>
 
