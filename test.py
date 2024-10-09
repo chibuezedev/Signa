@@ -18,9 +18,9 @@ class TFLiteClassifier:
     def get_prediction(self, image):
         # Preprocess image if necessary
         input_shape = self.input_details[0]['shape']
-        input_image = cv2.resize(image, (input_shape[1], input_shape[2]))  # Resize image to model's input shape
-        input_image = np.expand_dims(input_image, axis=0)  # Add batch dimension
-        input_image = input_image.astype(np.float32)  # Ensure the image is float32
+        input_image = cv2.resize(image, (input_shape[1], input_shape[2]))
+        input_image = np.expand_dims(input_image, axis=0)  
+        input_image = input_image.astype(np.float32)  
 
         # Set input tensor and run inference
         self.interpreter.set_tensor(self.input_details[0]['index'], input_image)
@@ -99,7 +99,6 @@ class HandImageProcessor:
             if image_white is not None:
                 cv2.imshow("Image White", image_white)
 
-                # Get prediction from TFLite model
                 confidence, predicted_label_index = self.classifier.get_prediction(image_white)
                 print(f"Prediction: {labels[predicted_label_index]}, Confidence: {confidence}")
 
@@ -111,7 +110,7 @@ class HandImageProcessor:
 
 
 if __name__ == "__main__":
-    labels = ["A", "B", "C"]  # Your labels
+    labels = ["A", "B", "C"]  
     classifier = TFLiteClassifier('Model/TFLITE/model_unquant.tflite')
     processor = HandImageProcessor(classifier)
     processor.run()
